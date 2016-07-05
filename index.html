@@ -1,0 +1,201 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Practical machine learning by leejaymin</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Practical machine learning</h1>
+        <p></p>
+
+        <p class="view"><a href="https://github.com/leejaymin/practical_machine_learning">View the Project on GitHub <small>leejaymin/practical_machine_learning</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/leejaymin/practical_machine_learning/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/leejaymin/practical_machine_learning/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/leejaymin/practical_machine_learning">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="practical-machine-learning-project" class="anchor" href="#practical-machine-learning-project" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>"Practical Machine Learning Project"</h1>
+
+<h3>
+<a id="author-jemin-lee-phd-candidate-chungnam-national-university-south-korea" class="anchor" href="#author-jemin-lee-phd-candidate-chungnam-national-university-south-korea" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>author: "jemin lee (Ph.D Candidate, Chungnam National University, South Korea)"</h3>
+
+<h3>
+<a id="date-2015년-11월-22일" class="anchor" href="#date-2015%EB%85%84-11%EC%9B%94-22%EC%9D%BC" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>date: "2015년 11월 22일"</h3>
+
+<h3>
+<a id="output-html_document" class="anchor" href="#output-html_document" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>output: html_document</h3>
+
+<hr>
+
+<h2>
+<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Introduction</h2>
+
+<p>Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: <a href="http://groupware.les.inf.puc-rio.br/har">http://groupware.les.inf.puc-rio.br/har</a> (see the section on the Weight Lifting Exercise Dataset). </p>
+
+<h2>
+<a id="data" class="anchor" href="#data" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Data</h2>
+
+<p>The training data for this project are available here: 
+<a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv">https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv</a></p>
+
+<p>The test data are available here: 
+<a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv">https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv</a></p>
+
+<p>The data for this project come from this source: <a href="http://groupware.les.inf.puc-rio.br/har">http://groupware.les.inf.puc-rio.br/har</a>.</p>
+
+<p>The data can also be downloaded using the following R scoprt:</p>
+
+<div class="highlight highlight-source-r"><pre><span class="pl-c"># essential library </span>
+library(<span class="pl-smi">caret</span>)
+library(<span class="pl-smi">randomForest</span>)
+library(<span class="pl-smi">corrplot</span>)
+
+<span class="pl-en">downloadFiles</span> <span class="pl-k">&lt;-</span> <span class="pl-k">function</span>(<span class="pl-v">dataURL</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>, <span class="pl-v">destF</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>t.csv<span class="pl-pds">"</span></span>)
+{
+    <span class="pl-k">if</span>(<span class="pl-k">!</span>file.exists(<span class="pl-smi">destF</span>)){
+        download.file(<span class="pl-smi">dataURL</span>, <span class="pl-smi">destF</span>, <span class="pl-v">method</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>curl<span class="pl-pds">"</span></span>)
+    }<span class="pl-k">else</span>{
+        message(<span class="pl-s"><span class="pl-pds">"</span>data already downloaded.<span class="pl-pds">"</span></span>)
+    }
+}
+<span class="pl-smi">trainURL</span><span class="pl-k">&lt;-</span><span class="pl-s"><span class="pl-pds">"</span>https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv<span class="pl-pds">"</span></span>
+<span class="pl-smi">testURL</span> <span class="pl-k">&lt;-</span><span class="pl-s"><span class="pl-pds">"</span>https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv<span class="pl-pds">"</span></span>
+downloadFiles(<span class="pl-smi">trainURL</span>, <span class="pl-s"><span class="pl-pds">"</span>pml-training.csv<span class="pl-pds">"</span></span>)
+downloadFiles(<span class="pl-smi">testURL</span>, <span class="pl-s"><span class="pl-pds">"</span>pml-testing.csv<span class="pl-pds">"</span></span>)</pre></div>
+
+<p>Load the data from csv files.</p>
+
+<div class="highlight highlight-source-r"><pre><span class="pl-smi">train</span> <span class="pl-k">&lt;-</span> read.csv(<span class="pl-s"><span class="pl-pds">"</span>./pml-training.csv<span class="pl-pds">"</span></span>)
+<span class="pl-smi">test</span> <span class="pl-k">&lt;-</span> read.csv(<span class="pl-s"><span class="pl-pds">"</span>./pml-testing.csv<span class="pl-pds">"</span></span>)</pre></div>
+
+<p>Check the structure of data and the number of each class in training set.</p>
+
+<div class="highlight highlight-source-r"><pre>dim(<span class="pl-smi">train</span>)
+table(<span class="pl-smi">train</span><span class="pl-k">$</span><span class="pl-smi">classe</span>)</pre></div>
+
+<p>Split training dataset into training and validation for evaluating model.
+We did cross validation using createDataPartition().
+This function guarantees diverse distribution in each column.</p>
+
+<div class="highlight highlight-source-r"><pre>set.seed(<span class="pl-c1">123456</span>)
+<span class="pl-smi">inTrain</span> <span class="pl-k">&lt;-</span> createDataPartition(<span class="pl-smi">train</span><span class="pl-k">$</span><span class="pl-smi">classe</span>, <span class="pl-v">p</span> <span class="pl-k">=</span> <span class="pl-c1">3</span><span class="pl-k">/</span><span class="pl-c1">4</span>, <span class="pl-v">list</span> <span class="pl-k">=</span> <span class="pl-c1">FALSE</span>)
+<span class="pl-smi">trainingSet</span> <span class="pl-k">&lt;-</span> <span class="pl-smi">train</span>[<span class="pl-smi">inTrain</span>, ]
+<span class="pl-c"># create validation set for testing in sample error</span>
+<span class="pl-smi">validationSet</span> <span class="pl-k">&lt;-</span> <span class="pl-smi">train</span>[<span class="pl-k">-</span><span class="pl-smi">inTrain</span>, ]</pre></div>
+
+<h2>
+<a id="fetures-slection-for-makeing-model" class="anchor" href="#fetures-slection-for-makeing-model" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Fetures Slection for makeing model</h2>
+
+<p>Check the near zero covariates(featrues).</p>
+
+<div class="highlight highlight-source-r"><pre><span class="pl-smi">nzvMatrix</span> <span class="pl-k">&lt;-</span> nearZeroVar(<span class="pl-smi">trainingSet</span>, <span class="pl-v">saveMetrics</span> <span class="pl-k">=</span> <span class="pl-c1">TRUE</span>)
+<span class="pl-smi">trainingSet_rmovedZero</span> <span class="pl-k">&lt;-</span> <span class="pl-smi">trainingSet</span>[,<span class="pl-k">!</span><span class="pl-smi">nzvMatrix</span><span class="pl-k">$</span><span class="pl-smi">nzv</span>]</pre></div>
+
+<p>Deal with missing value.</p>
+
+<div class="highlight highlight-source-r"><pre><span class="pl-c"># first option to handle missing value:</span>
+<span class="pl-c"># remove columns, containing missing value over 50%, out of all data.</span>
+<span class="pl-smi">cntlength</span> <span class="pl-k">&lt;-</span> sapply(<span class="pl-smi">trainingSet_rmovedZero</span>, <span class="pl-k">function</span>(<span class="pl-smi">x</span>) {
+    sum(<span class="pl-k">!</span>(is.na(<span class="pl-smi">x</span>) <span class="pl-k">|</span> <span class="pl-smi">x</span> <span class="pl-k">==</span> <span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>))
+})
+<span class="pl-smi">columnNA_frist</span> <span class="pl-k">&lt;-</span> names(<span class="pl-smi">cntlength</span>[<span class="pl-smi">cntlength</span> <span class="pl-k">&lt;</span> <span class="pl-c1">0.5</span> <span class="pl-k">*</span> length(<span class="pl-smi">trainingSet</span><span class="pl-k">$</span><span class="pl-smi">classe</span>)])
+
+<span class="pl-c"># second option to handle missing value:</span>
+<span class="pl-c"># remove all columns, contating a missing value.</span>
+<span class="pl-smi">conditionColumnsNA</span> <span class="pl-k">&lt;-</span> apply(<span class="pl-smi">trainingSet_rmovedZero</span>,<span class="pl-c1">2</span>,<span class="pl-k">function</span>(<span class="pl-smi">x</span>) table(is.na(<span class="pl-smi">x</span>))[<span class="pl-c1">1</span>]<span class="pl-k">!=</span>dim(<span class="pl-smi">trainingSet_rmovedZero</span>)[<span class="pl-c1">1</span>])   
+<span class="pl-smi">columnNA_second</span> <span class="pl-k">&lt;-</span> names(<span class="pl-smi">trainingSet_rmovedZero</span>)[<span class="pl-smi">conditionColumnsNA</span>]</pre></div>
+
+<p>Discards unsueful covariates(feautres), beacuse these featrues are descriptive features.
+So, we consider only numeric type of covariate from HAR sensor.</p>
+
+<div class="highlight highlight-source-r"><pre><span class="pl-smi">descriptiveColumns</span> <span class="pl-k">&lt;-</span> c(<span class="pl-s"><span class="pl-pds">"</span>X<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>user_name<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>raw_timestamp_part_1<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>raw_timestamp_part_2<span class="pl-pds">"</span></span>, 
+                 <span class="pl-s"><span class="pl-pds">"</span>cvtd_timestamp<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>new_window<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>num_window<span class="pl-pds">"</span></span>)
+<span class="pl-smi">removeColumns</span> <span class="pl-k">&lt;-</span> c(<span class="pl-smi">descriptiveColumns</span>, <span class="pl-smi">columnNA_second</span>)
+<span class="pl-smi">refinedTrainingSet</span> <span class="pl-k">&lt;-</span> <span class="pl-smi">trainingSet_rmovedZero</span>[, <span class="pl-k">!</span>names(<span class="pl-smi">trainingSet_rmovedZero</span>) <span class="pl-k">%in%</span> <span class="pl-smi">removeColumns</span>]</pre></div>
+
+<p>Remove highly correlated covariates(features).
+To comput correlation, make set without classes.</p>
+
+<div class="highlight highlight-source-r"><pre><span class="pl-smi">corrM</span> <span class="pl-k">&lt;-</span> cor(subset(<span class="pl-smi">refinedTrainingSet</span>, <span class="pl-v">select</span><span class="pl-k">=</span><span class="pl-k">-</span>c(<span class="pl-smi">classe</span>)))
+corrplot(<span class="pl-smi">corrM</span>, <span class="pl-v">method</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>circle<span class="pl-pds">"</span></span>,<span class="pl-v">tl.cex</span><span class="pl-k">=</span><span class="pl-c1">0.6</span>)</pre></div>
+
+<p>Detect high correlation.</p>
+
+<div class="highlight highlight-source-r"><pre><span class="pl-smi">highCorr</span> <span class="pl-k">&lt;-</span> findCorrelation(<span class="pl-smi">corrM</span>, <span class="pl-v">cutoff</span> <span class="pl-k">=</span> .<span class="pl-c1">75</span>)</pre></div>
+
+<p>To make concrete data set, combine two data, classe and data excluding high correlation of columns.</p>
+
+<div class="highlight highlight-source-r"><pre><span class="pl-smi">removeHighCorrTrainSet</span> <span class="pl-k">&lt;-</span> cbind(<span class="pl-v">classe</span><span class="pl-k">=</span><span class="pl-smi">refinedTrainingSet</span><span class="pl-k">$</span><span class="pl-smi">classe</span>,<span class="pl-smi">refinedTrainingSet</span>[,<span class="pl-k">-</span><span class="pl-smi">highCorr</span>])  </pre></div>
+
+<h2>
+<a id="making-model-using-random-forest-algorithm" class="anchor" href="#making-model-using-random-forest-algorithm" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Making Model using Random Forest Algorithm</h2>
+
+<div class="highlight highlight-source-r"><pre><span class="pl-smi">rfModel</span> <span class="pl-k">&lt;-</span> randomForest(<span class="pl-smi">classe</span> <span class="pl-k">~</span> ., <span class="pl-v">data</span> <span class="pl-k">=</span> <span class="pl-smi">removeHighCorrTrainSet</span>, <span class="pl-v">importance</span> <span class="pl-k">=</span> <span class="pl-c1">TRUE</span>, <span class="pl-v">ntrees</span> <span class="pl-k">=</span> <span class="pl-c1">10</span>)
+<span class="pl-smi">rfModel</span>
+plot(<span class="pl-smi">rfModel</span>)
+varImpPlot(<span class="pl-smi">rfModel</span>,<span class="pl-v">cex</span><span class="pl-k">=</span>.<span class="pl-c1">5</span>)  </pre></div>
+
+<h2>
+<a id="testing-constructed-model" class="anchor" href="#testing-constructed-model" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Testing Constructed Model</h2>
+
+<p>We test model in term of in sample error and out of sample error.</p>
+
+<div class="highlight highlight-source-r"><pre><span class="pl-c"># training sample</span>
+<span class="pl-smi">ptraining</span> <span class="pl-k">&lt;-</span> predict(<span class="pl-smi">rfModel</span>, <span class="pl-smi">removeHighCorrTrainSet</span>)
+print(confusionMatrix(<span class="pl-smi">ptraining</span>, <span class="pl-smi">removeHighCorrTrainSet</span><span class="pl-k">$</span><span class="pl-smi">classe</span>))
+<span class="pl-c"># out of sample</span>
+<span class="pl-smi">pvalidation</span> <span class="pl-k">&lt;-</span> predict(<span class="pl-smi">rfModel</span>, <span class="pl-smi">validationSet</span>)
+print(confusionMatrix(<span class="pl-smi">pvalidation</span>, <span class="pl-smi">validationSet</span><span class="pl-k">$</span><span class="pl-smi">classe</span>))</pre></div>
+
+<p>The reason why out of sample error appared is probably noise called outlier or somehow it is beacuse our model is overffting.</p>
+
+<h2>
+<a id="predicting-test-set-including-no-class-data" class="anchor" href="#predicting-test-set-including-no-class-data" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Predicting test set, including no class data</h2>
+
+<p>Test set prediction</p>
+
+<div class="highlight highlight-source-r"><pre><span class="pl-smi">ptest</span> <span class="pl-k">&lt;-</span> predict(<span class="pl-smi">rfModel</span>, <span class="pl-smi">test</span>)
+<span class="pl-smi">ptest</span></pre></div>
+
+<p>We then save the output to files based on instructions.
+We can post it to the submission page.</p>
+
+<div class="highlight highlight-source-r"><pre><span class="pl-smi">answers</span> <span class="pl-k">&lt;-</span> as.vector(<span class="pl-smi">ptest</span>)
+<span class="pl-v">pml_write_files</span> <span class="pl-k">=</span> <span class="pl-k">function</span>(<span class="pl-smi">x</span>){
+    <span class="pl-v">n</span> <span class="pl-k">=</span> length(<span class="pl-smi">x</span>)
+    <span class="pl-k">for</span>(<span class="pl-smi">i</span> <span class="pl-k">in</span> <span class="pl-c1">1</span><span class="pl-k">:</span><span class="pl-smi">n</span>){
+        <span class="pl-v">filename</span> <span class="pl-k">=</span> paste0(<span class="pl-s"><span class="pl-pds">"</span>problem_id_<span class="pl-pds">"</span></span>,<span class="pl-smi">i</span>,<span class="pl-s"><span class="pl-pds">"</span>.txt<span class="pl-pds">"</span></span>)
+        write.table(<span class="pl-smi">x</span>[<span class="pl-smi">i</span>],<span class="pl-v">file</span><span class="pl-k">=</span><span class="pl-smi">filename</span>,<span class="pl-v">quote</span><span class="pl-k">=</span><span class="pl-c1">FALSE</span>,<span class="pl-v">row.names</span><span class="pl-k">=</span><span class="pl-c1">FALSE</span>,<span class="pl-v">col.names</span><span class="pl-k">=</span><span class="pl-c1">FALSE</span>)
+    }
+}
+pml_write_files(<span class="pl-smi">answers</span>)</pre></div>
+
+<h2>
+<a id="conclusion" class="anchor" href="#conclusion" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Conclusion</h2>
+
+<p>In this project, we made predition model based on Human Actiity Recogniton (HAR) project. To build prediction model, we took several pre-processing steps that are zero variance features analysis, removing missing value and decriptive featrues, and deleting high correlation features. By doing that, we reduced computating time of bulding model and achieved high accruacy of prediction. Fortunately, RandomFrest-Model we made attained 100% accruacy in term of 20 samples in Test-set. However, 100% accruacy is not make sense. For precise evaluation, we need to get larger data set than now.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/leejaymin">leejaymin</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
